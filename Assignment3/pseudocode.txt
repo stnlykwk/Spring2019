@@ -1,0 +1,66 @@
+// Section 13.4 Pseudocode
+
+// int main
+int main() {
+    bankLine = a new empty queue    // bankLine
+    eventPriorityQueue = a new empty priority queue // event queue
+
+    tellerAvailable = true
+
+    // create and add arrival events to the event queue
+    while(data file is not empty) {
+        Get next arrival time a and transaction time t from file
+        newArrivalEvent = a new arrival event containing a and t
+        eventPriorityQueue.enqueue(newArrivalEvent)
+    }
+
+    // Event Loop
+    while(!eventPriorityQueue.isEmpty()) {
+        newEvent = eventPriorityQueue.peek();
+
+        // Get current time
+        currentTime = time of newEvent
+
+        if (newEvent is an arrival event) {
+            processArrival(newEvent, eventPriorityQueue, bankLine)
+        }
+        else {
+            processDeparture(newEvent, eventPriorityQueue, bankLine)
+        }
+    }
+}
+
+// processArrival
+processArrival(arrivalEvent: Event, eventPriorityQueue: PriorityQueue, bankLine: Queue) {
+    
+    // Remove this event from the event queue
+    eventPriorityQueue.dequeue()
+
+    customer = customer referenced in arrivalEvent
+    if (bankLine.isEmpty() && tellerAvailable) {
+        departureTime = currentTime + transaction time in arrivalEvent
+        newDepartureEvent = a new departure event with departureTime
+        eventPriorityQueue.enqueue(newDepartureEvent)
+        tellerAvailable = false
+    }
+    else {
+        bankLine.enqueue(customer)
+    }
+}
+
+// processDeparture
+processDeparture(departureEvent: Event, eventPriorityQueue: PriorityQueue, bankLine: Queue) {
+    // Remove this event from the event queue
+    eventPriorityQueue.dequeue()
+
+    if(!bankLine.isEmpty()) {
+        customer = bankLine.peekFront()
+        bankLine.dequeue()
+        departureTime = currentTIme + transaction time in customer
+        newDepartureEvent = a new departure event with departureTime
+        eventPriorityQueue.enqueue(newDepartureEvent)
+    }
+    else {
+        tellerAvailable = true
+    }
+}
